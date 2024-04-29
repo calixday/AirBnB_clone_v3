@@ -1,26 +1,14 @@
 #!/usr/bin/python3
-''' new view for State objects'''
+''' state of the object'''
 
+from flask import request
 from flask import Flask
 from flask import Flask, abort
 from api.v1.views import app_views
 from os import name
 from models.state import State
-from flask import request
 
 
-@app_views.route('/status', methods=['GET'] strict_slashes=False)
-def toGet():
-    '''getting thing'''
-    objects = storage.all('State')
-    lista = []
-    for state in objects.values():
-        lista.append(state.to_dict())
-    return jsonify(lista)
-
-
-@app_views.route('/states/<string:stateid>', methods=['GET'],
-                 strict_slashes=False)
 def toGetid():
     '''Updates a State object id'''
     objects = storage.get('State', 'state_id')
@@ -34,7 +22,7 @@ def toGetid():
 def posting():
     '''Creates a State'''
     response = request.get_json()
-    if response id None:
+    if response is None:
         abort(400, {'Not a JSON'})
     if "name" not in response:
         abort(400, {'Missing name'})
@@ -49,7 +37,7 @@ def posting():
 def putinV():
     '''vladimir'''
     response = request.get_json()
-    if response id None:
+    if response is None:
         abort(400, {'Not a JSON'})
     stateObject = storage.get(State, state_id)
     if stateObject is None:
@@ -62,7 +50,19 @@ def putinV():
     return jsonify(stateObject.to_dict()), '200'
 
 
-@app_views.route('/states/<state_id>', methods=['DELETE'],
+@app_views.route('/states/<state_id>', methods= ['DELETE'],
+                 strict_slashes=False)
+@app_views.route('/state', methods= ['GET'] strict_slashes=False)
+def toGet():
+    '''getting things'''
+    objects = storage.all('State')
+    lista = []
+    for state in objects.values():
+        lista.append(state.to_dict())
+    return jsonify(lista)
+
+
+@app_views.route('/states/<string:stateid>', methods=['GET'],
                  strict_slashes=False)
 def deleting():
     ''' to delete an onbject'''
