@@ -1,10 +1,10 @@
 #!/usr/bin/python3
-"""building an app"""
+"""app"""
+from flask import Flask, make_response, jsonify
+from models import storage
 from api.v1.views import app_views
 from os import getenv
-from models import storage
 from flask_cors import CORS
-from flask import Flask, make_response, jsonify
 
 
 app = Flask(__name__)
@@ -17,7 +17,7 @@ app.register_blueprint(app_views)
 
 @app.teardown_appcontext
 def tear(self):
-    ''' engine '''
+    ''' closes storage engine '''
     storage.close()
 
 

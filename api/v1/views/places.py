@@ -1,20 +1,20 @@
 #!/usr/bin/python3
-"""do for the places"""
+"""places"""
+from api.v1.views import app_views
+from flask import jsonify, abort, request
+from models import storage
 from models.city import City
 from models.place import Place
 from datetime import datetime
 import uuid
-from api.v1.views import app_views
-from flask import jsonify, abort, request
-from models import storage
 
 
 @app_views.route('/cities/<city_id>/places', methods=['GET'])
 @app_views.route('/cities/<city_id>/places/', methods=['GET'])
 def list_places_of_city(city_id):
     '''Retrieves a list of all Place objects in city'''
-    for_all_cities = storage.all("City").values()
-    city_obj = [obj.to_dict() for obj in for_all_cities if obj.id == city_id]
+    all_cities = storage.all("City").values()
+    city_obj = [obj.to_dict() for obj in all_cities if obj.id == city_id]
     if city_obj == []:
         abort(404)
     list_places = [obj.to_dict() for obj in storage.all("Place").values()
@@ -25,8 +25,8 @@ def list_places_of_city(city_id):
 @app_views.route('/places/<place_id>', methods=['GET'])
 def get_place(place_id):
     '''Retrieves a Place object'''
-    for_all_places = storage.all("Place").values()
-    place_obj = [obj.to_dict() for obj in for_all_places if obj.id == place_id]
+    all_places = storage.all("Place").values()
+    place_obj = [obj.to_dict() for obj in all_places if obj.id == place_id]
     if place_obj == []:
         abort(404)
     return jsonify(place_obj[0])
@@ -35,13 +35,13 @@ def get_place(place_id):
 @app_views.route('/places/<place_id>', methods=['DELETE'])
 def delete_place(place_id):
     '''Deletes a Place object'''
-    for_all_places = storage.all("Place").values()
-    place_obj = [obj.to_dict() for obj in for_all_places
+    all_places = storage.all("Place").values()
+    place_obj = [obj.to_dict() for obj in all_places
                  if obj.id == place_id]
     if place_obj == []:
         abort(404)
     place_obj.remove(place_obj[0])
-    for obj in for_all_places:
+    for obj in all_places:
         if obj.id == place_id:
             storage.delete(obj)
             storage.save()

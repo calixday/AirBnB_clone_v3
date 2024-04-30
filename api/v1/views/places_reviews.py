@@ -1,20 +1,20 @@
 #!/usr/bin/python3
-"""review for the places"""
+"""places_reviews"""
+from api.v1.views import app_views
+from flask import jsonify, abort, request
 from models import storage
 from models.place import Place
 from models.review import Review
 from datetime import datetime
 import uuid
-from api.v1.views import app_views
-from flask import jsonify, abort, request
 
 
 @app_views.route('/places/<place_id>/reviews', methods=['GET'])
 @app_views.route('/places/<place_id>/reviews/', methods=['GET'])
 def list_reviews_of_place(place_id):
     ''' Retrieves a list of all Review objects of a Place '''
-    all_the_places = storage.all("Place").values()
-    place_obj = [obj.to_dict() for obj in all_the_places if obj.id == place_id]
+    all_places = storage.all("Place").values()
+    place_obj = [obj.to_dict() for obj in all_places if obj.id == place_id]
     if place_obj == []:
         abort(404)
     list_reviews = [obj.to_dict() for obj in storage.all("Review").values()
@@ -29,7 +29,7 @@ def create_review(place_id):
         abort(400, 'Not a JSON')
     if 'user_id' not in request.get_json():
         abort(400, 'Missing user_id')
-    users_id = request.json['user_id']
+    user_id = request.json['user_id']
     if 'text' not in request.get_json():
         abort(400, 'Missing text')
     all_places = storage.all("Place").values()
@@ -37,12 +37,12 @@ def create_review(place_id):
     if place_obj == []:
         abort(404)
     all_users = storage.all("User").values()
-    user_obj = [obj.to_dict() for obj in all_users if obj.id == users_id]
+    user_obj = [obj.to_dict() for obj in all_users if obj.id == user_id]
     if user_obj == []:
         abort(404)
     reviews = []
     new_review = Review(text=request.json['text'], place_id=place_id,
-                        user_id=users_id)
+                        user_id=user_id)
     storage.new(new_review)
     storage.save()
     reviews.append(new_review.to_dict())
@@ -78,15 +78,15 @@ def delete_review(review_id):
 def updates_review(review_id):
     '''Updates a Review object'''
     all_reviews = storage.all("Review").values()
-    review_objects = [obj.to_dict() for obj in all_reviews if obj.id == review_id]
-    if review_objects == []:
+    review_obj = [obj.to_dict() for obj in all_reviews if obj.id == review_id]
+    if review_obj == []:
         abort(404)
     if not request.get_json():
         abort(400, 'Not a JSON')
     if 'text' in request.get_json():
-        review_objects[0]['text'] = request.json['text']
+        review_obj[0]['text'] = request.json['text']
         for obj in all_reviews:
             if obj.id == review_id:
                 obj.text = request.json['text']
         storage.save()
-    return jsonify(review_objects[0]), 200
+    return jsonify(review_obj[0]), 200
